@@ -1,0 +1,391 @@
+CHUNGATH JEWELLERS CRM PROTOTYPE
+SCREEN FLOW & NAVIGATION MAP
+==============================================================
+
+1. USER AUTHENTICATION & ENTRY POINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Login Screen
+├─ Role Selection: Admin | Manager | Sales Executive | Marketing Executive
+├─ Email & Password Input
+└─ Redirects to → Dashboard (role-specific)
+
+User Roles & Permissions:
+─────────────────────────
+• ADMIN: Cross-branch visibility, all features, approvals, system configuration
+• MANAGER: Branch-level visibility, team management, lead approvals, report access
+• SALES EXECUTIVE: Own leads/customers, field visits, Check-in/Out, limited mobile features
+• MARKETING EXECUTIVE: Hoarding management, contractor management, route management
+
+
+2. MAIN NAVIGATION STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Sidebar Navigation (Collapsible):
+├─ 🏠 Dashboard
+├─ 👥 Leads → Leads List → Lead Detail
+├─ 👥 Customers → Customers List → Customer Detail (with Visit History)
+├─ 📍 Hoardings → Hoardings List → Hoarding Detail (with Inspection History)
+├─ 🤝 Contractors → Contractors List → Contractor Detail (with Linked Hoardings)
+├─ 🗺️ Routes → Routes List
+├─ 📅 Events → Event Calendar
+├─ 📊 Reports → Report Dashboard
+├─ ⚙️ Settings → Account & System Settings
+└─ 🚪 Logout → Back to Login
+
+
+3. MODULE 1: LEAD MANAGEMENT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lead Creation:
+├─ Dashboard
+└─ Leads List
+    ├─ [New Lead Button] → Lead Creation Modal
+    │   ├─ Customer Name (Text)
+    │   ├─ Phone (Tel, Mandatory)
+    │   ├─ Ceremony Type (Dropdown: Marriage | Engagement | Other)
+    │   ├─ Ceremony Date (Date Picker)
+    │   ├─ Pincode (Text, for area auto-derivation)
+    │   ├─ Referred By (Dropdown: Walk-in | Staff | Event | Other)
+    │   └─ Submit → Lead Created (Status: Pending Manager Approval or Active)
+    └─ → Lead List with Filtering by Status, Area
+
+Lead Status Lifecycle:
+NEW → CONTACTED → INTERESTED / NOT INTERESTED → CONVERTED / LOST / DISQUALIFIED
+
+Lead Detail Screen:
+├─ Lead Information Card (Read/Edit)
+│   ├─ Customer Name
+│   ├─ Phone
+│   ├─ Email
+│   ├─ Address
+│   ├─ Pincode
+│   ├─ Ceremony Type & Date
+│   └─ Source of Lead
+├─ Status Panel (Right Sidebar)
+│   ├─ Current Status Badge
+│   ├─ [Update Status Button] → Status Selection Modal
+│   └─ [Record Follow-up Button] → Follow-up Modal
+│       ├─ Next Status (Dropdown)
+│       ├─ Visit Notes (Textarea)
+│       ├─ Next Visit Date (Date Picker)
+│       └─ Submit
+└─ Follow-up History (Expandable)
+    ├─ Status updates with timestamps
+    ├─ Visit notes
+    ├─ Photos (if captured)
+    └─ GPS coordinates
+
+
+4. MODULE 2: CUSTOMER & ACCOUNT MANAGEMENT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lead Conversion:
+Converted Lead → Customer Account Created
+
+Customer List:
+├─ Filterable & Searchable (by Name, Phone, Area, Card Number)
+├─ Columns: Name | Phone | Area | Card Number | Visit Count | Actions
+└─ [View Button] → Customer Detail
+
+Customer Detail Screen:
+├─ Customer Information Card
+│   ├─ Name
+│   ├─ Phone
+│   ├─ Email
+│   ├─ Address
+│   ├─ Pincode
+│   ├─ Area
+│   ├─ Card Number
+│   └─ Source of Lead (from original lead)
+├─ Quick Actions Sidebar
+│   ├─ [Add Visit] → Visit Creation
+│   └─ [Schedule Visit] → Calendar Picker
+└─ Visit History (Chronological, Expandable)
+    ├─ Visit Date
+    ├─ Check-in Time & GPS
+    ├─ Check-out Time & GPS
+    ├─ Visit Notes
+    ├─ Photos (GPS-tagged)
+    └─ Status Updates
+
+
+5. MODULE 3: FIELD VISIT MANAGEMENT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Daily Workflow (Field User):
+
+[Start Day Button] 
+├─ Auto-capture: Date, Time, GPS, Device Info
+├─ Status: Daily Log Created
+└─ Ready for Visits
+
+During Field Visit:
+├─ [Check-In Button]
+│   ├─ Auto-capture: GPS, Timestamp
+│   └─ Assign to Lead/Customer/Hoarding
+├─ [Visit Details Form]
+│   ├─ Visit Type (Existing Customer | New Lead | Hoarding)
+│   ├─ Select Record
+│   ├─ Visit Notes (Textarea)
+│   ├─ Ceremony Date Confirmation (Date Picker)
+│   ├─ Next Preferred Visit Date (Date Picker)
+│   ├─ Status Update (Dropdown - for leads)
+│   └─ [Capture Photo] → Camera (Gallery blocked by default)
+├─ [Check-Out Button]
+│   ├─ Auto-capture: GPS, Timestamp
+│   └─ [Capture Photo] → Camera
+
+[End Day Button]
+├─ Auto-capture: Date, Time, GPS
+├─ Trigger: Google Maps Distance Matrix API Call
+│   ├─ Send GPS sequence: Start Day → Visit 1 → Visit 2 → ... → End Day
+│   ├─ API returns: Total Road Distance (KMs)
+│   └─ Store: Daily KM per Executive
+└─ Daily Log Completed
+
+Visit History per Customer:
+├─ Chronological list of all visits
+├─ Each visit shows:
+│   ├─ Date & Times
+│   ├─ GPS Coordinates (clickable map?)
+│   ├─ Photos
+│   ├─ Visit Notes
+│   └─ Status Updates
+
+
+6. MODULE 4: HOARDING MANAGEMENT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Hoarding Creation:
+Dashboard → Hoardings List → [New Hoarding Button] → Installation Modal
+├─ Hoarding Name (Text)
+├─ Location (Address with Landmark)
+├─ Length (ft) & Width (ft) → Auto-calculate Area (Sq.Ft)
+├─ Hoarding Type (Dropdown: Billboard | Poster | Digital Screen)
+├─ Contractor (Lookup to Contractor Master)
+├─ Annual Rate (Currency)
+├─ Contract Start & End Dates
+├─ Inspection Frequency (Dropdown: 30/60/90 days) → Auto-compute Next Visit Date
+├─ [Capture Photo] → Camera (Installation photo - mandatory)
+└─ Submit → Hoarding Created
+
+Hoarding Detail Screen:
+├─ Hoarding Information Card
+│   ├─ Name, Location, Size, Area (Sq.Ft)
+│   ├─ Contractor, Annual Rate, Dates
+│   ├─ Installation Photo (thumbnail clickable for full view)
+│   └─ Inspection Frequency
+├─ Inspection Panel (Right Sidebar)
+│   ├─ Next Scheduled Visit Date (Highlighted)
+│   └─ [Record Inspection Button] → Board Status Modal
+│       ├─ Board Status (Dropdown with sub-options)
+│       │   ├─ Good Condition
+│       │   ├─ Need Fix - Vegetation | Flex Damage | Competitor Hoarding
+│       │   ├─ Rectified
+│       │   └─ Others (requires mandatory note)
+│       ├─ Inspection Date (Date Picker)
+│       ├─ Notes (Textarea)
+│       ├─ [Capture Photo] → Camera (Inspection photo)
+│       └─ Submit
+├─ Status Indicators
+│   ├─ Out-of-Due-Date Flag (if inspection is late)
+│   ├─ 30-Day Contract Expiry Alert (if applicable)
+│   └─ Board Condition Badge (Good | Damaged | Rectified)
+└─ Inspection History (Expandable)
+    ├─ Each inspection with:
+    │   ├─ Inspection Date & Time
+    │   ├─ Board Status (color-coded)
+    │   ├─ Notes
+    │   ├─ GPS-tagged Photo
+    │   └─ Executed By (Field User)
+
+
+7. MODULE 5: CONTRACTOR MANAGEMENT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Contractor List:
+├─ Filterable & Searchable
+├─ Columns: Name | Contact Person | Phone | Active Hoardings | Annual Value | Actions
+└─ [View Button] → Contractor Detail
+
+Contractor Detail Screen:
+├─ Contractor Information Card
+│   ├─ Name, Contact Person, Phone, Email
+│   ├─ Address, City, Branch
+│   └─ Status (Active | Inactive)
+├─ Summary Card (Right Sidebar)
+│   ├─ Total Active Hoardings (Auto-calculated)
+│   ├─ Annual Contract Value (Auto-calculated Roll-up Sum)
+│   └─ [Contact Button] (Email/Phone)
+└─ Linked Hoardings Table
+    ├─ Hoarding Name
+    ├─ Location
+    ├─ Size
+    ├─ Annual Rate
+    ├─ Status (Active | Inactive | Damaged)
+    ├─ Last Visit Date
+    └─ Next Visit Date
+
+Hoarding Filtering by Contractor & Route:
+├─ Route Filter (Multi-select Dropdown)
+├─ Contractor Filter (Multi-select Dropdown)
+├─ Combined Filter Result
+└─ Filtered Hoardings List with Details
+
+
+8. MODULE 6: ROUTE MANAGEMENT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Route List:
+├─ Filterable & Searchable
+├─ Columns: Route Name | Area | Hoardings Count | Status
+└─ Routes are used only for Hoarding tagging, NOT for Customer areas
+
+
+9. MODULE 7: EVENT CALENDAR FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Event List:
+├─ [New Event Button] → Event Creation Modal
+│   ├─ Event Name (Text)
+│   ├─ Event Type (Dropdown: Shop | Sponsored | Campaign | Other)
+│   ├─ Start Date (Date Picker)
+│   ├─ End Date (Date Picker)
+│   ├─ Branch (Dropdown or Multi-select)
+│   ├─ Description (Textarea - Optional)
+│   ├─ Reminder Configuration (Number - Days before, default 7)
+│   ├─ Hoarding Placement Details (Textarea - Where will hoardings display this event?)
+│   └─ Submit
+├─ Columns: Event Name | Type | Start Date | End Date | Reminder Days
+└─ Automated Reminder Notifications sent on configured days
+
+Branch-wise Calendar View (Manager):
+└─ Shows only events for their branch
+
+Cross-branch Calendar View (Admin):
+└─ Shows all events across all branches
+
+
+10. DASHBOARD FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Role-specific Dashboard:
+
+ADMIN Dashboard:
+├─ KPI Cards
+│   ├─ Total Leads (All-branch)
+│   ├─ Leads Converted (All-branch)
+│   ├─ Active Hoardings (All-branch)
+│   └─ Avg KMs/Day (Across all executives)
+├─ Charts
+│   ├─ Lead Status Distribution (Pie/Bar)
+│   ├─ Monthly KMs Travelled (Aggregated)
+│   └─ Conversion Rate Trend
+└─ Recent Activity Feed
+
+MANAGER Dashboard:
+├─ KPI Cards (Branch-level)
+├─ Team Performance Metrics
+├─ Lead Approval Pending Count
+└─ Recent Activity (Branch-specific)
+
+SALES EXECUTIVE Dashboard:
+├─ Own KPIs
+│   ├─ My Leads Count
+│   ├─ Conversion Rate
+│   └─ KMs Travelled Today
+├─ Today's Schedule
+│   ├─ Scheduled Visits
+│   └─ Next Follow-ups
+└─ Pending Approvals (if manager rejected)
+
+MARKETING EXECUTIVE Dashboard:
+├─ Active Hoardings Count
+├─ Inspections Due (Next 7 days)
+├─ Board Status Summary
+└─ Contract Expiry Alerts (30-day window)
+
+
+11. REPORTS & ANALYTICS FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Reports Hub:
+├─ Sales Productivity Reports
+│   ├─ Total Visits / Completed Visits (Daily/Monthly Dashboard)
+│   ├─ No Visit Days (Monthly Excel Export)
+│   └─ Start Day vs End Day (Daily Dashboard)
+├─ Lead & Customer Reports
+│   ├─ Number of Leads Collected (Daily/Monthly)
+│   ├─ Lead Conversion Rate (Monthly Dashboard)
+│   ├─ New Customer Onboarding (Monthly Excel)
+│   └─ Leads by Source (Weekly/Monthly Dashboard)
+├─ Marketing Executive Reports
+│   ├─ Executive-wise Client List (Excel Export)
+│   ├─ KM Travelled per Executive (Monthly Excel/Dashboard)
+│   ├─ Visits Done per Executive (Monthly)
+│   ├─ Area-wise Client List (Excel)
+│   ├─ Date-wise Visit Report (Excel)
+│   ├─ Clients by Ceremony Date (Weekly)
+│   └─ Converted/Lost Leads with Reasons (Monthly)
+├─ Hoarding Monitoring Reports
+│   ├─ Number of Hoarding Visits (Monthly Dashboard)
+│   ├─ Missed Hoarding Visits (Monthly Excel)
+│   ├─ Board Status Summary (Monthly Dashboard)
+│   └─ Hoarding Visit History with Photos (Excel)
+├─ Contractor Reports
+│   ├─ Amount Per Year Per Contractor (Yearly/Monthly)
+│   ├─ Amount Per Year Per Route (Yearly/Monthly)
+│   ├─ Contractor-wise Hoarding List (Excel)
+│   ├─ Contracts Expiring Soon (Weekly)
+│   └─ Active Hoarding Sq.Ft Summary (Monthly)
+└─ Route & Area Performance
+    ├─ Visits per Route (Monthly Dashboard)
+    ├─ Visits per Area (Monthly Dashboard)
+    ├─ Leads per Area (Monthly Dashboard)
+    ├─ Hoardings per Route (Excel)
+    ├─ Route-wise Hoarding Spend (Yearly)
+    └─ Route-wise Active Hoarding Sq.Ft (Monthly)
+
+
+12. NOTIFICATIONS & ALERTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Notification Delivery Channels: In-App Bell | Email | Pop-up
+
+Alert Types & Recipients:
+├─ Next Visit Date Reminder → Sales Executive
+├─ Pending Lead Follow-up → Sales Executive + Manager
+├─ Hoarding Next Visit Alert → Marketing Executive
+├─ Damaged Hoarding Follow-up → Executive + Manager
+├─ Contract Expiry (30-day prior) → Manager + Admin
+├─ Lead Completion Approval → Manager
+├─ Lead Creation Approval → Manager
+├─ Ceremony Date Approaching → Sales Executive
+├─ Upcoming Event Reminder → Manager + Admin
+└─ Gallery Upload Approval Request → Admin
+
+
+13. NAVIGATION PATTERNS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+List View → Detail View:
+├─ Click on record row → Detail screen opens (side or full-screen)
+├─ [Back Button] or [← Back to List] returns to list
+└─ Detail screen retains filter/sort context
+
+Create/Edit Workflows:
+├─ [+ New] / [Edit] Button → Modal dialog opens (overlay)
+├─ Form validation on field exit
+├─ [Cancel] dismisses modal without save
+├─ [Submit] validates & saves data
+└─ Success notification & modal closes
+
+Role-based Screen Access:
+├─ Each screen checks user role before rendering
+├─ Unauthorized fields are hidden (FLS)
+├─ Actions available only to permitted roles
+└─ Sidebar items show only for user's role
+
+
+END OF SCREEN FLOW DOCUMENTATION

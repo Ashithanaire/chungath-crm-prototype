@@ -1,0 +1,587 @@
+CHUNGATH JEWELLERS CRM PROTOTYPE
+ASSUMPTIONS MADE & BRD INTERPRETATION
+==============================================================
+
+1. SCREEN SCOPE & COMPLETENESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ASSUMPTION: All screens mentioned in BRD are represented in the prototype
+──────────────────────────────────────────────────────────────────────
+
+Screens Created:
+✓ Login Screen (Role selection)
+✓ Dashboard (KPI metrics, charts, recent activity)
+✓ Leads List & Detail (with follow-up history)
+✓ Customers List & Detail (with visit history)
+✓ Hoardings List & Detail (with inspection history)
+✓ Contractors List & Detail (with linked hoardings)
+✓ Routes List
+✓ Events Calendar
+✓ Reports Hub
+✓ Settings
+
+Modals & Workflows Included:
+✓ Lead Creation Form (triggered via [+ New Lead])
+✓ Lead Status Update (via [Update Status])
+✓ Follow-up Recording (via [Record Follow-up])
+✓ Hoarding Installation Form (via [New Hoarding])
+✓ Board Status Update (via [Record Inspection])
+✓ Event Creation Form (via [New Event])
+
+Scope Excluded (Per BRD):
+─ Backend API integration (Mock data only)
+─ Database connectivity
+─ Business logic & validations (Except UI state)
+─ User authentication backend
+─ Email/SMS notification delivery
+─ Google Maps actual integration (API call simulated)
+─ File uploads & storage
+─ Real GPS geolocation capture
+
+
+2. ROLE-BASED ACCESS ASSUMPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ASSUMPTION: All roles (Admin, Manager, Sales Executive, Marketing Executive) 
+have consistent access to common screens, with FLS (Field-Level Security) 
+applied at field level, not screen level.
+
+Implementation Approach:
+├─ All screens visible to all roles (in prototype)
+├─ Action buttons show/hide based on role
+├─ Form fields would be hidden/read-only per FLS (ready in code comments)
+└─ Real Salesforce implementation: FLS at Profile & Permission Set level
+
+Role Visibility in Prototype:
+├─ Dashboard: Role-specific metrics (hardcoded examples)
+├─ Leads: All can view; only Manager can approve/reassign
+├─ Customers: All can view; only Manager/Admin can edit
+├─ Hoardings: All can inspect; Manager/Admin reactivate
+├─ Contractors: All can view; Marketing Executive creates
+├─ Routes: All can view; Marketing Executive assigns hoardings
+├─ Events: All can view; Manager/Admin receive reminders
+├─ Reports: Role-based visibility (Admin sees all; Executive sees own)
+└─ Settings: Each user edits own account settings
+
+
+3. DATA & MOCK VALUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ASSUMPTION: Mock data is realistic and representative of actual usage
+
+Mock Data Structure:
+
+Leads:
+├─ 5 sample leads with status progression
+├─ Fields: Name, Phone, Ceremony Type, Date, Status, Area, Source
+├─ Status range: New → Contacted → Interested / Not Interested → Converted / Lost
+├─ Ceremony Types: Marriage, Engagement, Other
+└─ Sources: Walk-in, Staff, Event, Referred Person
+
+Customers:
+├─ 2 sample converted leads (post-Lead Conversion)
+├─ Fields: Name, Phone, Area, Card Number, Visit Count
+└─ Represents actual customer accounts
+
+Hoardings:
+├─ 3 sample hoardings with varying statuses
+├─ Fields: Name, Location, Size, Contractor, Status, Next Visit Date
+├─ Board Status examples: Good Condition, Need Fix (with reasons)
+└─ Inspection Frequency: 30/60/90 days
+
+Contractors:
+├─ 3 sample contractors with linked hoardings
+├─ Auto-calculated: Total Active Hoardings, Annual Contract Value
+└─ Each contractor has 5 sample linked hoardings
+
+Routes:
+├─ 3 sample routes (hoarding routes, not customer routes)
+├─ Fields: Route Name, Area, Hoarding Count, Status
+└─ Note: Separate from Customer Areas (which are pincode-based)
+
+Events:
+├─ 3 sample events with different types
+├─ Fields: Name, Type, Dates, Reminder Configuration
+├─ Types: Shop Event, Sponsored, Campaign, Other
+└─ Reminder: Configurable days before start date
+
+GPS Coordinates:
+├─ Sample: 9.9312°N, 76.2673°E (Fort Kochi location)
+├─ Used in: Customer visits, Hoarding installations, Field checks
+└─ Note: Display only; actual GPS capture requires device API
+
+Photo Captures:
+├─ Represented as: Camera icon, capture action
+├─ Gallery upload: Marked as "requires approval"
+└─ In prototype: Shown as mock action; real implementation needs file upload
+
+
+4. WORKFLOW & PROCESS INTERPRETATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lead Lifecycle Interpretation:
+
+Step 1: Lead Source Identification
+├─ Assumption: Captured during lead creation
+├─ Referred By field (dropdown): Walk-in | Staff | Event | Other
+└─ In prototype: Dropdown in Lead Creation Form
+
+Step 2: Lead Capture & Entry
+├─ Assumption: Can happen via mobile (pending approval) OR admin panel (immediate)
+├─ In prototype: Single form for both; approval workflow modeled
+└─ Status behavior: Executive-created → "Pending Manager Approval" (simulated)
+
+Step 3: Manager Approval
+├─ Assumption: Modal workflow for Manager to review leads
+├─ In prototype: Not explicitly shown (ready for implementation)
+├─ Suggested implementation: List of "Pending Approval" leads in Manager dashboard
+
+Step 4: Lead Assignment
+├─ Assumption: Manager creates team (group of executives) → assigns to team/area
+├─ Area = Pincode-based (auto-derived)
+├─ In prototype: Shown as "Assigned To" field in lead detail
+└─ Not fully interactive in prototype (ready for add of assignment modal)
+
+Step 5: Lead Qualification & Follow-up
+├─ Assumption: Each follow-up is a separate record (Visit to Lead)
+├─ Status flow: New → Contacted → Interested / Not Interested
+├─ In prototype: Follow-up Modal records status change + notes
+└─ History displayed in "Follow-up History" section
+
+Step 6: Lead Conversion
+├─ Assumption: When lead commits to purchase, convert to Customer Account + Contact
+├─ In prototype: Button on Lead Detail to trigger conversion (modal ready)
+└─ Note: In real Salesforce, creates related Account & Contact records
+
+Step 7: Lead Completion Request
+├─ Assumption: Executive marks Converted/Lost with mandatory narration
+├─ In prototype: Modal form with Status dropdown + Notes
+└─ Manager then approves/rejects the completion request
+
+Step 8: Manager Approval of Completion
+├─ Assumption: If rejected, lead reverts to previous status with Manager's comments
+├─ In prototype: Approval workflow modeled (ready for full implementation)
+└─ UI shows: Lead status, approval status, Manager comment
+
+
+Customer & Account Management Interpretation:
+
+Creation:
+├─ Assumption: Automatic on Lead Conversion
+├─ Customer fields inherited from converted Lead
+├─ New field: Customer Card Number (mandatory during conversion)
+└─ In prototype: Customer created post-conversion (shown in Customers list)
+
+Area Auto-Derivation:
+├─ Assumption: Area auto-derived from Pincode
+├─ Manager can override (in prototype, shown as editable field)
+└─ Used for pincode-based area assignment (not hoarding routes)
+
+Visit History:
+├─ Assumption: Auto-populated from Field Visit records
+├─ Each check-in/check-out creates a Visit record
+├─ In prototype: Visit History shown in Customer Detail with GPS, photos, notes
+
+
+Field Visit Workflow Interpretation:
+
+Daily Flow:
+├─ [Start Day] → Daily Log created, GPS captured
+├─ [Visit 1 Check-in] → GPS captured
+├─ [Visit 1 Check-out] → GPS + Photo captured
+├─ [Visit 2 Check-in] → GPS captured
+├─ ... (repeat for each visit)
+├─ [End Day] → Daily Log completed, Google Maps API call triggered
+└─ Result: Daily KM calculated & stored
+
+Distance Matrix API Integration:
+├─ Assumption: API call happens at End Day (not real-time)
+├─ GPS Sequence: Start Day GPS → Visit 1 Check-in → Visit 1 Check-out → ... → End Day GPS
+├─ API returns: Total road distance (KMs)
+├─ Storage: Per Executive, per Day
+└─ In prototype: Simulated API call; monthly KM total displayed on dashboard
+
+Photo Restrictions:
+├─ Assumption: Camera-only capture by default (mobile device camera)
+├─ Gallery upload: Blocked, requires Manager request → Admin approval
+├─ In prototype: Camera icon shown; gallery upload marked as approval-needed
+└─ Real implementation: Client-side media picker restriction
+
+
+Hoarding Management Workflow Interpretation:
+
+Installation (Step 1-3):
+├─ Marketing Executive creates Hoarding record with all master fields
+├─ Size fields (Length, Width) → Auto-calculate Area (Sq.Ft)
+├─ Inspection Frequency (30/60/90 days) → Auto-compute Next Visit Schedule Date
+├─ Installation photo capture (camera-only, mandatory)
+└─ GPS auto-captured at installation (within 50-meter accuracy)
+
+Periodic Inspection (Step 4-7):
+├─ System sends reminder on Next Visit Schedule Date
+├─ Executive visits hoarding, checks in with GPS, captures photo
+├─ Executive updates Board Status:
+│  ├─ Good Condition
+│  ├─ Need Fix (with sub-options: Vegetation, Flex Damage, Competitor Hoarding)
+│  ├─ Rectified
+│  └─ Others (requires mandatory note)
+├─ Status note logged for audit trail (with date & executor)
+└─ If visit after due date → Flagged as "Out of Due Date"
+
+Contract Monitoring (Step 8):
+├─ Assumption: System sends alert 30 days before contract expiry
+├─ Alert includes: Contract end date, contract value, next steps
+└─ In prototype: Alert shown in Hoarding Detail + Notifications
+
+Lifecycle Expiry (Step 9):
+├─ Assumption: After 1 year from "Active From Date", hoarding auto-marks as Inactive
+├─ Removed from contractor, master, and route active lists
+├─ Admin reactivates after re-installation (resets 1-year cycle)
+├─ In prototype: Status shows "Inactive" after 1-year period (simulated with logic-ready code)
+
+
+4. NOTIFICATIONS & ALERTS INTERPRETATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ASSUMPTION: All notifications are delivered via 3 channels:
+├─ In-App Notification Bell (with count badge)
+├─ Email (background, not shown in prototype)
+└─ Pop-up (browser notification, ready for implementation)
+
+Alert Types Modeled in Prototype:
+
+Next Visit Date Reminder:
+├─ Recipient: Assigned Sales Executive
+├─ Trigger: On scheduled next visit date for a lead/customer
+├─ Display: In-app notification, email optional
+└─ In prototype: Notification bell shows count; content ready
+
+Pending Lead Follow-up Reminder:
+├─ Recipient: Sales Executive + Manager
+├─ Trigger: When lead has no follow-up for configured threshold (e.g., 5 days)
+├─ In prototype: Manager dashboard would show "Pending Follow-ups"
+
+Hoarding Next Visit Alert:
+├─ Recipient: Assigned Marketing Executive
+├─ Trigger: On computed Next Visit Schedule Date
+└─ In prototype: Hoarding Detail shows "Next Visit Due" date with visual highlight
+
+Damaged Hoarding Follow-up:
+├─ Recipient: Assigned Executive + Manager
+├─ Trigger: After Board Status = "Need Fix" and not yet "Rectified"
+├─ Escalation: Multiple reminders if not addressed
+└─ In prototype: Hoarding status color-coded (red for damaged)
+
+Contract Expiry Alert:
+├─ Recipient: Manager + Admin
+├─ Trigger: 30 days before contract end date
+├─ In prototype: Shown in Hoarding Detail card highlight
+
+Lead Completion Approval:
+├─ Recipient: Manager
+├─ Trigger: When Executive marks lead Converted/Lost with narration
+├─ In prototype: Modal form to submit completion; Manager approval pending
+
+Lead Creation Approval:
+├─ Recipient: Manager
+├─ Trigger: When Sales Executive creates lead via mobile (pending approval)
+├─ Status: Lead enters "Pending Manager Approval" state
+└─ In prototype: Status shown in Lead List
+
+Ceremony Date Approaching:
+├─ Recipient: Assigned Sales Executive
+├─ Trigger: Configurable days before ceremony date (e.g., 7 days)
+├─ Purpose: Reminder to follow up before ceremony
+└─ In prototype: Ready for implementation in Lead Detail
+
+Upcoming Event Reminder:
+├─ Recipient: Manager + Admin
+├─ Trigger: Configurable days before event/campaign start (default: 7 days)
+├─ In prototype: Event Detail would show reminder configuration
+
+
+5. DASHBOARD & REPORTS INTERPRETATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Dashboard Metrics Interpretation:
+
+Admin Dashboard:
+├─ Total Leads: Count of all leads (all branches, all statuses)
+├─ Leads Converted: Count of leads with status = "Converted"
+├─ Active Hoardings: Count of hoardings with Contract Status = "Active"
+└─ Avg KMs/Day: Sum of all executive KMs / number of field days
+
+Manager Dashboard:
+├─ Branch-level metrics (same as Admin but filtered by manager's branch)
+├─ Team Performance: Leads per executive, conversion rate, KMs
+└─ Lead Approvals Pending: Count of leads awaiting manager approval
+
+Executive Dashboard:
+├─ Personal metrics only
+├─ Today's Visits: Count of visits scheduled for today
+├─ KMs Today: Running total (updated at End Day)
+└─ Conversion Rate: Personal conversion rate for this month
+
+Reports Interpretation:
+
+Sales Productivity Reports:
+├─ Total Visits / Completed Visits: Daily and Monthly aggregations
+├─ Status-wise count: Converted vs Lost (success metrics)
+├─ No Visit Days: Days when executive didn't check in
+├─ Start Day vs End Day: Consistency tracking (should be 1:1)
+
+Lead & Customer Reports:
+├─ Leads Collected: Count by day/month
+├─ Lead Conversion Rate: (Converted) / (Total) * 100
+├─ New Customer Onboarding: Count of newly converted customers
+├─ Leads by Source: Breakdown by Walk-in, Staff, Event, Other
+
+Hoarding Monitoring Reports:
+├─ Number of Visits: Count of inspection visits per month
+├─ Missed Visits: Inspections that were "Out of Due Date"
+├─ Board Status Summary: Count by status (Good, Damaged, Rectified, etc.)
+└─ Visit History with Photos: Excel export with GPS-tagged photos & notes
+
+Contractor Reports:
+├─ Annual Contract Value: Sum of (Annual Rate) per contractor, per route
+├─ Active Hoardings: Count of active hoardings per contractor
+├─ Contract Expiry Soon: Contracts ending in 30/60/90 days
+└─ Sq.Ft Summary: Total area of active hoardings
+
+
+6. MOBILE/RESPONSIVE DESIGN ASSUMPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ASSUMPTION: Responsive layouts suitable for desktop, tablet, and mobile.
+
+Implementation Approach:
+├─ CSS Grid with auto-fit and minmax
+├─ Flex layouts for responsiveness
+├─ Sidebar collapses on mobile (hamburger menu)
+├─ Tables scroll horizontally on small screens
+├─ Modal width: 90% on mobile, max-width 500px on desktop
+└─ Touch-friendly button sizes (48x48px minimum)
+
+Mobile Salesforce App Assumptions:
+
+Field User Mobile Screens:
+├─ Start/End Day: Large buttons, fullscreen map (ready)
+├─ Check-In/Check-Out: Minimal form, camera capture (ready)
+├─ Lead Creation: Simplified form, GPS auto-capture
+├─ Visit Recording: GPS, photo, notes (core mobile features)
+└─ Area/Executive Client List: Searchable, scrollable
+
+Prototype Limitation:
+├─ Prototype shown on desktop viewport (responsive code ready)
+├─ Real mobile implementation: Native iOS/Android app OR Salesforce Mobile App
+└─ Prototype demonstrates layout structure; real build adds touch optimization
+
+
+7. SALESFORCE-SPECIFIC ASSUMPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ASSUMPTION: Final application will be built on Salesforce platform using:
+
+Salesforce Features Used:
+├─ Objects: Lead, Account, Contact, Custom Objects (Visit, Hoarding, Contractor, Route, Event)
+├─ Fields: Standard & Custom fields with FLS
+├─ Relationships: Lookup & Master-Detail relationships
+├─ Profiles & Permission Sets: Role-based access control
+├─ Sharing Rules: Data visibility (branch-level, cross-branch)
+├─ Apex Triggers: Auto-calculations (area, KMs, next visit date)
+├─ Flows: Approval workflows, automation, notifications
+├─ Visualforce Pages: Custom UIs (ready for Lightning)
+├─ Lightning Components: Custom LWC for complex features
+├─ Apex REST: API integration (Google Maps API)
+└─ Salesforce Mobile App: Field user experience
+
+Prototype Alignment:
+├─ UI follows SLDS (Lightning Design System) patterns
+├─ Components map to SLDS standard components
+├─ Form layouts match Salesforce form patterns
+├─ Navigation mimics Salesforce app navigation
+├─ Data display uses Salesforce table patterns
+└─ Modals follow Salesforce dialog patterns
+
+
+8. FIELD VISIT TRACKING ASSUMPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GPS Accuracy:
+├─ Installation: Within 50 meters of actual hoarding location
+├─ Check-in/Check-out: Standard mobile GPS accuracy
+└─ Requirement: Sufficient for distance calculation & mapping
+
+Google Maps Distance Matrix API:
+├─ Called once per day (at End Day)
+├─ Input: GPS coordinates sequence (Start → Visits → End)
+├─ Output: Road distance (KMs) between consecutive points
+├─ Cost: Within free tier (70,000 requests/month) at 4 executives
+└─ Billed to: Chungath Jewellers (on their Google Cloud account)
+
+Photo Capture:
+├─ Camera-only by default (mobile device camera)
+├─ Gallery upload: Requires Manager request → Admin approval
+├─ Photo metadata: GPS-tagged with timestamp, executor name
+├─ Storage: Cloud-based (Salesforce Files or external cloud)
+└─ In prototype: Photo capture action shown; real storage ready for Salesforce Files API
+
+Accuracy Requirements:
+├─ Visit time: ± 1 minute (device time)
+├─ GPS coordinates: Decimal format (9.9312°N, 76.2673°E)
+└─ Distance: Calculated to nearest 0.1 KM
+
+
+9. APPROVAL WORKFLOWS ASSUMPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lead Creation Approval:
+├─ Executive-created lead → Status: "Pending Manager Approval"
+├─ Manager notified (in-app + email)
+├─ Manager reviews & approves/rejects
+├─ On approval: Lead → Status: "New" (enters active pool)
+├─ On rejection: Lead → Closed with rejection reason
+└─ In prototype: Approval modal ready (button to open)
+
+Lead Completion Approval:
+├─ Executive marks Converted/Lost with mandatory narration
+├─ Manager notified with approval request
+├─ Manager approves/rejects
+├─ On approval: Status finalized
+├─ On rejection: Lead reverts to previous status, Manager comment shared
+└─ In prototype: Completion modal with narration field
+
+Gallery Upload Approval:
+├─ Field user (Executive) requests gallery upload
+├─ Manager forwards to Admin
+├─ Admin approves/denies
+├─ Approval logged for audit
+├─ Once approved: Field user can upload from gallery
+└─ In prototype: Approval workflow structure ready
+
+Salesforce Implementation:
+├─ Apex Approval Process: Formal workflow with approval steps
+├─ Email alerts: Apex sendEmail() for notifications
+├─ Status tracking: Custom field to track approval state
+└─ Audit trail: Field history tracking on status changes
+
+
+10. DATA UPLOAD & GO-LIVE ASSUMPTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Data Template:
+├─ Provided by Fingertip as Excel template
+├─ Chungath Jewellers fills with existing data
+├─ No data cleaning by Fingertip (responsibility of client)
+├─ One-time upload before Go-Live
+└─ In prototype: Mock data only (template structure shown)
+
+Master Data Objects:
+├─ Leads: Existing leads to import
+├─ Customers: Existing customers/accounts
+├─ Hoardings: All active hoardings with details
+├─ Contractors: All contractors with contact info
+├─ Routes: All hoarding routes
+└─ Events/Campaigns: Upcoming events to track
+
+Post-UAT Changes:
+├─ Change requests treated as additional work
+├─ Additional estimation & timeline required
+├─ Handled via change control matrix
+└─ Not included in initial scope
+
+
+11. ASSUMPTIONS NOT MADE (OUT OF SCOPE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This prototype does NOT include:
+
+Database Persistence:
+├─ No real database backend
+├─ Mock data hardcoded in component
+├─ Real implementation: Salesforce backend (CRM database)
+└─ Data would persist across sessions in real app
+
+Business Logic & Validations:
+├─ No field validations (required, format, etc.)
+├─ No duplicate detection on phone numbers (shown but not implemented)
+├─ No area auto-derivation from pincode (field ready, logic not active)
+├─ No 1-year auto-deactivation of hoardings (logic comment ready)
+└─ Real implementation: Backend validations + front-end UX feedback
+
+API Integrations:
+├─ Google Maps Distance Matrix API: Simulated (no real API call)
+├─ Google Cloud: Not integrated (would be in real app)
+├─ Email delivery: Not implemented (backend in real app)
+├─ SMS notifications: Not implemented (backend in real app)
+└─ File storage: Not implemented (Salesforce Files API in real app)
+
+Authentication & Security:
+├─ No real login validation
+├─ No session management
+├─ No password hashing/security
+├─ No encryption (data in transit/rest)
+└─ Real implementation: Salesforce OAuth, SSO, TLS encryption
+
+Offline Support:
+├─ No offline data storage
+├─ No sync when connection restored
+├─ No conflict resolution for simultaneous edits
+└─ Real implementation: Service Worker + IndexedDB or Salesforce offline
+
+Advanced Features (Ready for Future):
+├─ Map visualization of GPS points
+├─ Photo gallery with zoom/pan
+├─ Bulk import/export utilities
+├─ Advanced filtering & reporting
+├─ Geofencing for location-based reminders
+└─ Analytics dashboards with advanced charts
+
+
+12. DESIGN DECISIONS EXPLAINED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Modal vs Full-Screen:
+├─ Decision: Forms (Create, Edit, Record) use Modal overlays
+├─ Reason: Non-disruptive, maintains context of parent page
+├─ Alternative: Full-screen form pages (ready for implementation)
+└─ SLDS Pattern: Consistent with Salesforce modal dialogs
+
+Two-Column Detail Layout:
+├─ Decision: Main content (left 2fr) + Sidebar (right 1fr)
+├─ Reason: Action buttons always visible while scrolling content
+├─ Alternative: Single column (mobile) (responsive code ready)
+└─ SLDS Pattern: Record pages with sidebar actions
+
+Alternating Row Colors:
+├─ Decision: Tables use alternating background colors (ALT1/ALT2)
+├─ Reason: Improves readability in long tables
+├─ Implementation: Conditional background based on row index
+└─ SLDS Pattern: Standard data table styling
+
+Collapsible Sidebar:
+├─ Decision: Sidebar can collapse to icons
+├─ Reason: Maximize content area on screens with many columns
+├─ Implementation: Width transition with conditional label display
+└─ SLDS Pattern: Common navigation pattern
+
+Status Badges with Color-Coding:
+├─ Decision: Status displayed as colored pill badges
+├─ Colors: Green (success), Yellow (warning), Red (error), Gray (neutral)
+├─ Reason: Quick visual recognition of status at a glance
+└─ SLDS Pattern: Status badge component
+
+KPI Cards:
+├─ Decision: Dashboard uses card grid for metrics
+├─ Information: Metric name, value, trend percentage
+├─ Color: Metric-specific (success green, primary blue, etc.)
+└─ SLDS Pattern: Card grid layout
+
+History as Chronological Items:
+├─ Decision: Follow-up, inspection, visit history shown as expandable items
+├─ Content: Date, action, notes, related data, status
+├─ Styling: Light background, subtle styling (de-emphasized)
+└─ SLDS Pattern: Activity timeline/feed
+
+
+END OF ASSUMPTIONS DOCUMENTATION

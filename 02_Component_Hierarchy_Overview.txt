@@ -1,0 +1,508 @@
+CHUNGATH JEWELLERS CRM PROTOTYPE
+COMPONENT HIERARCHY & ARCHITECTURE OVERVIEW
+==============================================================
+
+1. TOP-LEVEL APPLICATION STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ChungathCRMPrototype (Main App Component)
+│
+├─ STATE MANAGEMENT
+│  ├─ currentScreen: string (Tracks which screen to display)
+│  ├─ userRole: string (Admin | Manager | Executive | Marketing)
+│  ├─ sidebarOpen: boolean (Sidebar expansion state)
+│  ├─ selectedLead: object (Currently viewed lead)
+│  ├─ selectedCustomer: object (Currently viewed customer)
+│  ├─ selectedHoarding: object (Currently viewed hoarding)
+│  ├─ selectedContractor: object (Currently viewed contractor)
+│  ├─ showModal: boolean (Modal visibility)
+│  └─ modalType: string (Type of modal: newLead, recordFollowup, boardStatus, etc.)
+│
+├─ GLOBAL CONSTANTS
+│  └─ colors: SLDS color palette object
+│     ├─ primary: #0070D2 (Salesforce Blue)
+│     ├─ primaryDark: #003366 (Dark Navy)
+│     ├─ success: #04844B (Green)
+│     ├─ warning: #FF9500 (Orange)
+│     ├─ error: #C23030 (Red)
+│     ├─ background: #F3F3F3 (Light Gray)
+│     ├─ border: #D3D3D3
+│     ├─ white: #FFFFFF
+│     ├─ darkText: #080707
+│     ├─ mediumText: #565656
+│     └─ lightText: #A4A4A4
+│
+└─ SCREEN COMPONENTS (Conditional Rendering)
+   ├─ LoginScreen
+   ├─ DashboardScreen
+   ├─ LeadsListScreen
+   ├─ LeadDetailScreen
+   ├─ CustomersListScreen
+   ├─ CustomerDetailScreen
+   ├─ HoardingsListScreen
+   ├─ HoardingDetailScreen
+   ├─ ContractorsListScreen
+   ├─ ContractorDetailScreen
+   ├─ RoutesListScreen
+   ├─ EventsListScreen
+   ├─ ReportsScreen
+   └─ SettingsScreen
+
+
+2. REUSABLE COMPONENT LIBRARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. LAYOUT COMPONENTS
+
+Sidebar
+├─ Purpose: Main navigation menu
+├─ Props:
+│  └─ (Implicit: uses currentScreen, userRole from parent state)
+├─ Features:
+│  ├─ Collapsible/Expandable toggle
+│  ├─ Navigation items with icons (Lucide React)
+│  ├─ Role-based visibility
+│  ├─ Logout button
+│  └─ Animated width transition
+└─ Nested Component: SidebarItem
+   ├─ Props: icon, label, onClick
+   ├─ Styling: Hover effects, active state
+   └─ Accessibility: Keyboard navigation ready
+
+TopBar
+├─ Purpose: Header with search, notifications, profile
+├─ Props: title (string)
+├─ Features:
+│  ├─ Search input with icon
+│  ├─ Notification bell with badge count
+│  ├─ User profile avatar
+│  ├─ Responsive layout
+│  └─ SLDS-compliant styling
+└─ Nested Components: None (icons from lucide-react)
+
+FullPage Layout
+├─ Structure: Sidebar + Main Content Area
+├─ Responsive: Sidebar collapses on mobile
+└─ Uses: Sidebar, TopBar, Screen Components
+
+
+B. CARD COMPONENTS
+
+Card
+├─ Purpose: Generic container for content (SLDS Card pattern)
+├─ Props:
+│  ├─ title: string (Optional header)
+│  ├─ children: ReactNode
+│  └─ style: object (Custom inline styles)
+├─ Features:
+│  ├─ White background
+│  ├─ Subtle box-shadow
+│  ├─ Rounded corners (SLDS compliant)
+│  ├─ Padding/Margin consistency
+│  └─ Used throughout app for content organization
+└─ Usage: Dashboard, List views, Detail views
+
+KPICard
+├─ Purpose: Display key performance indicators
+├─ Props:
+│  ├─ label: string
+│  ├─ value: string/number
+│  ├─ trend: string (e.g., "+12%")
+│  └─ color: string (Hex color code)
+├─ Features:
+│  ├─ Large value display
+│  ├─ Trend indicator
+│  └─ Color-coded by metric type
+└─ Usage: Dashboard KPI grid
+
+
+C. FORM COMPONENTS
+
+FormField
+├─ Purpose: Reusable form input component (SLDS Form pattern)
+├─ Props:
+│  ├─ label: string
+│  ├─ type: string (text | email | tel | date | number | select | textarea)
+│  ├─ placeholder: string
+│  └─ options: array (For select dropdowns)
+├─ Features:
+│  ├─ Consistent label styling
+│  ├─ Proper spacing (SLDS compliant)
+│  ├─ Dynamic input types
+│  ├─ Error-ready (styling prepared)
+│  └─ Accessibility attributes ready
+└─ Usage: All modal forms, create/edit screens
+
+Modal
+├─ Purpose: Dialog overlay for forms & confirmations (SLDS Modal pattern)
+├─ Props:
+│  ├─ title: string
+│  ├─ children: ReactNode (Form content)
+│  └─ onClose: function
+├─ Features:
+│  ├─ Centered overlay with dark backdrop
+│  ├─ Responsive max-width
+│  ├─ Close button (×)
+│  ├─ Click-outside handling ready
+│  └─ z-index management
+└─ Usage: Create Lead, Record Follow-up, Board Status, etc.
+
+
+D. DATA DISPLAY COMPONENTS
+
+Table (inline in screens)
+├─ Purpose: Display list data
+├─ Structure:
+│  ├─ <thead> with SLDS header styling
+│  ├─ <tbody> with alternating row colors
+│  └─ Action buttons (View, Edit, Delete)
+├─ Features:
+│  ├─ SLDS-compliant borders & spacing
+│  ├─ Alternating row background (ALT1/ALT2)
+│  ├─ Hover effects on rows
+│  ├─ Sortable headers (ready for implementation)
+│  └─ Responsive scrolling
+└─ Usage: Leads, Customers, Hoardings, Contractors, Routes, Events
+
+InfoField
+├─ Purpose: Display read-only information pairs (SLDS Output Field)
+├─ Props:
+│  ├─ label: string
+│  └─ value: string
+├─ Features:
+│  ├─ Gray label text (SLDS light text color)
+│  ├─ Bold value text
+│  └─ Consistent spacing
+└─ Usage: Detail screens, Customer info, Hoarding info
+
+HistoryItem
+├─ Purpose: Display chronological activity/history
+├─ Structure:
+│  ├─ Title (event name)
+│  ├─ Timestamp (gray text)
+│  ├─ Details/Notes
+│  └─ Optional: Status badge, Photos
+├─ Features:
+│  ├─ Light background
+│  ├─ Subtle styling (de-emphasized)
+│  ├─ Expandable (ready for full content)
+│  └─ Color-coded status indicators
+└─ Usage: Follow-up history, Inspection history, Visit history
+
+ReportCard
+├─ Purpose: Display report/dashboard options
+├─ Props:
+│  ├─ title: string
+│  ├─ description: string
+│  ├─ icon: string/emoji
+│  └─ onClick: function
+├─ Features:
+│  ├─ Large emoji/icon display
+│  ├─ Hover effects (cursor pointer)
+│  ├─ [View Report] button
+│  └─ Clickable
+└─ Usage: Reports page
+
+
+E. UTILITY COMPONENTS
+
+StatusBadge
+├─ Purpose: Display status with color-coding
+├─ Function: getStatusColor(status)
+├─ Colors: Based on status (New, Contacted, Converted, Lost, etc.)
+├─ Usage: Inline in tables, detail screens
+└─ Compliance: SLDS color palette
+
+Notification Bell
+├─ Purpose: Display notification icon with badge
+├─ Features:
+│  ├─ Bell icon with unread count
+│  ├─ Red background badge
+│  └─ Clickable (ready for notification drawer)
+└─ Usage: TopBar
+
+
+3. SCREEN-LEVEL ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COMMON SCREEN LAYOUT PATTERN:
+
+Screen
+├─ Layout: Flex container (height: 100vh)
+├─ Children:
+│  ├─ Sidebar (left, fixed width based on state)
+│  └─ Main Content Area (flex: 1)
+│     ├─ TopBar (title, search, notifications)
+│     ├─ Content Wrapper (padding, scrollable)
+│     │  ├─ Action Buttons (New, Filter)
+│     │  ├─ Content Cards
+│     │  ├─ Tables/Lists
+│     │  ├─ Detail Sections
+│     │  └─ History/Activities
+│     └─ Modal (if showModal && modalType)
+└─ Color Scheme: Consistent SLDS palette
+
+
+A. LIST SCREENS (Leads, Customers, Hoardings, Contractors, Routes, Events)
+
+Structure:
+├─ TopBar with screen title
+├─ Action buttons ([+ New], [Filter])
+├─ Card containing Table
+├─ Table structure:
+│  ├─ Columns: Relevant fields + Actions
+│  ├─ Rows: Data items with alternating colors
+│  └─ Actions: View (Eye icon), Edit (Pencil icon), Delete (Trash icon)
+├─ Row click → Detail screen opens
+└─ [+ New] click → Creation Modal opens
+
+Features:
+├─ Search/Filter input
+├─ Sortable columns (header click)
+├─ Pagination (ready for implementation)
+├─ Bulk actions (ready for implementation)
+├─ Export to CSV (ready for implementation)
+└─ Role-based visibility (columns hidden per FLS)
+
+Template Components Used:
+├─ Sidebar
+├─ TopBar
+├─ Card
+├─ Table (inline HTML)
+├─ StatusBadge (in table)
+└─ Modal (for create/edit)
+
+
+B. DETAIL SCREENS (Lead, Customer, Hoarding, Contractor)
+
+Structure:
+├─ TopBar with entity name
+├─ [← Back] button
+├─ Two-column layout (Main content + Sidebar)
+│  ├─ Left Column (2fr):
+│  │  ├─ Info Card (with field values)
+│  │  ├─ Expandable Sections (History, Related Records)
+│  │  └─ Additional cards (Linked records, etc.)
+│  └─ Right Sidebar (1fr):
+│     ├─ Status/Summary Panel
+│     ├─ Action Buttons
+│     └─ Quick Stats
+├─ Expandable History Section
+│  ├─ Chronological items
+│  ├─ Timestamps, notes, photos
+│  └─ Nested detail expandable
+└─ Modal for updating/recording (Record Follow-up, Board Status, etc.)
+
+Features:
+├─ Linked records display (e.g., contractor linked to hoarding)
+├─ Photo gallery (expandable)
+├─ GPS coordinates (map-ready)
+├─ Action buttons with role-based visibility
+└─ Status update modal
+
+Template Components Used:
+├─ Sidebar
+├─ TopBar
+├─ Card
+├─ InfoField
+├─ HistoryItem
+├─ StatusBadge
+├─ Modal
+└─ Nested Tables (for related records)
+
+
+C. DASHBOARD SCREEN
+
+Structure:
+├─ TopBar with title "Dashboard"
+├─ KPI Grid (4 cards)
+│  ├─ KPICard components
+│  ├─ Auto-responsive grid
+│  └─ Color-coded by metric
+├─ Charts Section (2-column grid)
+│  ├─ Lead Status Distribution (Bar chart visualization)
+│  ├─ Monthly KMs Travelled (Text + metric)
+│  └─ Ready for integration with Chart library
+├─ Recent Activity Card
+│  └─ Chronological list of recent events
+└─ Role-specific visibility
+   ├─ Admin: All-branch metrics
+   ├─ Manager: Branch-level metrics
+   └─ Executive: Personal metrics
+
+Template Components Used:
+├─ Sidebar
+├─ TopBar
+├─ Card
+└─ KPICard
+
+
+D. REPORTS SCREEN
+
+Structure:
+├─ TopBar with title "Reports & Analytics"
+├─ Reports Grid (Auto-responsive 3-column)
+│  └─ ReportCard (for each report category)
+│     ├─ Icon (emoji)
+│     ├─ Title
+│     ├─ Description
+│     └─ [View Report] button
+└─ Reports Categories:
+   ├─ Sales Productivity
+   ├─ Lead & Customer
+   ├─ Marketing Executive
+   ├─ Hoarding Monitoring
+   ├─ Contractor Reports
+   └─ Route & Area Performance
+
+Template Components Used:
+├─ Sidebar
+├─ TopBar
+└─ ReportCard
+
+
+E. SETTINGS SCREEN
+
+Structure:
+├─ TopBar with title "Settings"
+├─ Account Settings Card
+│  ├─ InfoField components (read-only display)
+│  └─ [Edit] button (ready for edit mode)
+├─ System Settings Card
+│  ├─ Checkboxes for feature toggles
+│  ├─ Notification preferences
+│  └─ Privacy settings
+└─ Danger Zone (optional)
+   └─ [Logout] button
+
+Template Components Used:
+├─ Sidebar
+├─ TopBar
+├─ Card
+└─ InfoField
+
+
+4. DATA FLOW & STATE MANAGEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Current Architecture:
+├─ Centralized state in main ChungathCRMPrototype component
+├─ useState hooks for:
+│  ├─ Navigation state (currentScreen)
+│  ├─ Authentication state (userRole)
+│  ├─ UI state (sidebarOpen, showModal, modalType)
+│  └─ Data selection state (selectedLead, selectedCustomer, etc.)
+├─ State passed to child components via props
+├─ Event handlers passed as onClick callbacks
+└─ Child components update parent state via callbacks
+
+Data Flow Pattern:
+List Screen
+  ├─ Display array of items
+  ├─ Click on item row
+  └─ → setSelectedX(item) + setCurrentScreen('detail')
+
+Detail Screen
+  ├─ Display selectedX from parent state
+  ├─ Click [Record Follow-up] button
+  └─ → setModalType('recordFollowup') + setShowModal(true)
+
+Modal
+  ├─ Display form based on modalType
+  ├─ Submit → (In real app: API call)
+  └─ → setShowModal(false) + refresh parent state
+
+Mock Data:
+├─ Currently: Hardcoded arrays in each screen
+├─ Real implementation: API calls via GraphQL/REST
+├─ Caching: Ready for Redux/Context API implementation
+└─ Pagination: Currently inline, ready for lazy loading
+
+
+5. STYLING ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SLDS Compliance:
+├─ Colors: Official Salesforce color palette
+│  ├─ Primary Blue: #0070D2
+│  ├─ Dark Navy: #003366
+│  ├─ Success Green: #04844B
+│  ├─ Warning Orange: #FF9500
+│  └─ Error Red: #C23030
+├─ Typography:
+│  ├─ Font-family: Arial, sans-serif (SLDS default)
+│  ├─ Headers: font-weight: bold, font-size: 16-28px
+│  ├─ Body text: font-size: 13-14px, color: mediumText
+│  └─ Labels: font-size: 12px, color: lightText
+├─ Spacing:
+│  ├─ Component padding: 16-24px
+│  ├─ Grid gaps: 16px
+│  ├─ Row padding: 12px
+│  └─ Margin between sections: 16px
+├─ Borders & Shadows:
+│  ├─ Border color: #D3D3D3 (SLDS light gray)
+│  ├─ Box shadows: 0 1px 3px rgba(0,0,0,0.1)
+│  ├─ Hover effects: Background color change
+│  └─ Focus states: Border highlight (ready)
+├─ Border Radius:
+│  ├─ Cards: 4px
+│  ├─ Buttons: 4px
+│  └─ Badges: 12px (rounded pills)
+└─ Responsive:
+   ├─ Grid: Auto-fit with minmax
+   ├─ Breakpoints: Auto-responsive
+   └─ Mobile: Sidebar collapses, fullwidth content
+
+
+6. ACCESSIBILITY & USER EXPERIENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Current Implementation:
+├─ Semantic HTML (buttons, tables, inputs)
+├─ Icon + Label combinations (no icon-only buttons)
+├─ Color contrast: SLDS compliant
+├─ Form labels: Always visible, associated with inputs
+└─ Navigation: Breadcrumbs, [Back] buttons
+
+Ready for Enhancement:
+├─ ARIA labels & roles
+├─ Keyboard navigation (Tab, Enter, Escape)
+├─ Screen reader support
+├─ Focus management (modal focus trap)
+└─ Loading states & skeletons
+
+
+7. FUTURE SCALABILITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Component Library Expansion:
+├─ Extract components to separate files (for large app)
+├─ Create @/components directory structure:
+│  ├─ /Layout (Sidebar, TopBar)
+│  ├─ /Common (Card, Modal, Button)
+│  ├─ /Forms (FormField, FormGroup)
+│  ├─ /Tables (DataTable, Pagination)
+│  ├─ /Widgets (KPICard, StatusBadge)
+│  └─ /Screens (Dashboard, Leads, Customers, etc.)
+└─ Maintain shared constants (colors, spacing)
+
+State Management Upgrade:
+├─ Migrate from useState to Context API
+├─ Implement Redux or Zustand for complex state
+├─ Add async state handling (loading, error)
+└─ Implement caching layer
+
+Data Layer:
+├─ Replace mock data with API integration
+├─ Implement GraphQL or REST client
+├─ Add pagination, filtering, sorting at API level
+└─ Implement error handling & retry logic
+
+Styling:
+├─ Migrate from inline styles to CSS modules
+├─ Or adopt Tailwind CSS with SLDS plugin
+├─ Or use styled-components for component-scoped styles
+└─ Maintain SLDS design tokens
+
+
+END OF COMPONENT HIERARCHY DOCUMENTATION
