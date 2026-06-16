@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chungath Jewellers CRM - Interactive Prototype</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; overflow: hidden; }
+        #root { width: 100%; height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React & Dependencies from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { Menu, X, ChevronDown, MapPin, Calendar, Users, BarChart3, Settings, LogOut, Bell, Search, Plus, Edit2, Trash2, Eye, ChevronRight, Clock, Phone, Mail, MapPinIcon, CheckCircle, AlertCircle, Camera, Home } = lucide;
+
+        export default function ChungathCRMPrototype() {
+            const [currentScreen, setCurrentScreen] = useState('login');
+            const [userRole, setUserRole] = useState(null);
+            const [sidebarOpen, setSidebarOpen] = useState(true);
+            const [selectedLead, setSelectedLead] = useState(null);
+            const [selectedCustomer, setSelectedCustomer] = useState(null);
+            const [selectedHoarding, setSelectedHoarding] = useState(null);
+            const [selectedContractor, setSelectedContractor] = useState(null);
+            const [showModal, setShowModal] = useState(false);
+            const [modalType, setModalType] = useState('');
+
+            const colors = {
+                primary: '#0070D2',
+                primaryDark: '#003366',
+                success: '#04844B',
+                warning: '#FF9500',
+                error: '#C23030',
+                background: '#F3F3F3',
+                border: '#D3D3D3',
+                white: '#FFFFFF',
+                darkText: '#080707',
+                mediumText: '#565656',
+                lightText: '#A4A4A4'
+            };
+
+            // LOGIN SCREEN
+            if (currentScreen === 'login') {
+                return (
+                    <div style={{ display: 'flex', height: '100vh', backgroundColor: colors.primaryDark }}>
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+                            <div style={{ width: '100%', maxWidth: '400px', backgroundColor: colors.white, padding: '40px', borderRadius: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                                <h1 style={{ fontSize: '28px', fontWeight: 'bold', color: colors.primaryDark, marginBottom: '10px', textAlign: 'center' }}>Chungath CRM</h1>
+                                <p style={{ textAlign: 'center', color: colors.mediumText, marginBottom: '30px' }}>Salesforce-based Lead & Field Management</p>
+                                
+                                <input 
+                                    type="email" 
+                                    placeholder="Email Address" 
+                                    style={{ width: '100%', padding: '10px', marginBottom: '15px', border: `1px solid ${colors.border}`, borderRadius: '4px', fontSize: '14px' }}
+                                />
+                                <input 
+                                    type="password" 
+                                    placeholder="Password" 
+                                    style={{ width: '100%', padding: '10px', marginBottom: '20px', border: `1px solid ${colors.border}`, borderRadius: '4px', fontSize: '14px' }}
+                                />
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: colors.darkText }}>Login As</label>
+                                    <select 
+                                        onChange={(e) => setUserRole(e.target.value)}
+                                        style={{ width: '100%', padding: '10px', border: `1px solid ${colors.border}`, borderRadius: '4px', fontSize: '14px' }}
+                                    >
+                                        <option value="">Select Role</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="manager">Manager (Branch)</option>
+                                        <option value="executive">Sales Executive</option>
+                                        <option value="marketing">Marketing Executive</option>
+                                    </select>
+                                </div>
+                                
+                                <button 
+                                    onClick={() => {
+                                        if (userRole) {
+                                            setCurrentScreen('dashboard');
+                                        }
+                                    }}
+                                    style={{ 
+                                        width: '100%', 
+                                        padding: '12px', 
+                                        backgroundColor: colors.primary, 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        borderRadius: '4px', 
+                                        fontSize: '16px', 
+                                        fontWeight: 'bold', 
+                                        cursor: 'pointer',
+                                        opacity: userRole ? 1 : 0.6
+                                    }}
+                                >
+                                    Log In
+                                </button>
+                                
+                                <p style={{ textAlign: 'center', color: colors.lightText, marginTop: '20px', fontSize: '12px' }}>Demo: Select any role to explore the prototype</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // SIDEBAR
+            const Sidebar = () => (
+                <div style={{ width: sidebarOpen ? '220px' : '60px', backgroundColor: colors.primaryDark, color: 'white', padding: '20px 10px', overflowY: 'auto', transition: 'width 0.3s', height: '100vh', position: 'relative' }}>
+                    <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', marginBottom: '20px', fontSize: '20px' }}>
+                        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                    {sidebarOpen && <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '20px', color: '#B3D9FF' }}>Chungath CRM</h2>}
+                    <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <SidebarItem icon={<Home size={20} />} label="Dashboard" onClick={() => setCurrentScreen('dashboard')} />
+                        <SidebarItem icon={<Users size={20} />} label="Leads" onClick={() => setCurrentScreen('leads')} />
+                        <SidebarItem icon={<Users size={20} />} label="Customers" onClick={() => setCurrentScreen('customers')} />
+                        <SidebarItem icon={<MapPin size={20} />} label="Hoardings" onClick={() => setCurrentScreen('hoardings')} />
+                        <SidebarItem icon={<Users size={20} />} label="Contractors" onClick={() => setCurrentScreen('contractors')} />
+                        <SidebarItem icon={<MapPin size={20} />} label="Routes" onClick={() => setCurrentScreen('routes')} />
+                        <SidebarItem icon={<Calendar size={20} />} label="Events" onClick={() => setCurrentScreen('events')} />
+                        <SidebarItem icon={<BarChart3 size={20} />} label="Reports" onClick={() => setCurrentScreen('reports')} />
+                        <SidebarItem icon={<Settings size={20} />} label="Settings" onClick={() => setCurrentScreen('settings')} />
+                    </nav>
+                    <button 
+                        onClick={() => { setCurrentScreen('login'); setUserRole(null); }}
+                        style={{ marginTop: 'auto', width: '100%', padding: '10px', backgroundColor: colors.error, border: 'none', color: 'white', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                        <LogOut size={18} /> {sidebarOpen && 'Logout'}
+                    </button>
+                </div>
+            );
+
+            const SidebarItem = ({ icon, label, onClick }) => (
+                <button 
+                    onClick={onClick}
+                    style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '12px', 
+                        padding: '10px 12px', 
+                        backgroundColor: 'rgba(255,255,255,0.1)', 
+                        border: 'none', 
+                        color: 'white', 
+                        borderRadius: '4px', 
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                        width: '100%'
+                    }}
+                >
+                    {icon}
+                    {sidebarOpen && label}
+                </button>
+            );
+
+            // TOPBAR
+            const TopBar = ({ title }) => (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', backgroundColor: colors.white, borderBottom: `1px solid ${colors.border}` }}>
+                    <h1 style={{ fontSize: '22px', fontWeight: 'bold', color: colors.darkText }}>{title}</h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ position: 'relative', width: '200px' }}>
+                            <input type="text" placeholder="Search..." style={{ width: '100%', padding: '8px 12px', border: `1px solid ${colors.border}`, borderRadius: '4px', fontSize: '13px' }} />
+                            <Search size={16} style={{ position: 'absolute', right: '10px', top: '8px', color: colors.lightText }} />
+                        </div>
+                        <button style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px' }}>
+                            <Bell size={20} color={colors.mediumText} />
+                            <span style={{ position: 'absolute', top: '0', right: '0', backgroundColor: colors.error, color: 'white', borderRadius: '50%', width: '16px', height: '16px', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>3</span>
+                        </button>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+                            {userRole ? userRole[0].toUpperCase() : 'U'}
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // DASHBOARD
+            if (currentScreen === 'dashboard') {
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Dashboard" />
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                                    <Card label="Total Leads" value="247" trend="+12%" color={colors.primary} />
+                                    <Card label="Leads Converted" value="48" trend="+8%" color={colors.success} />
+                                    <Card label="Active Hoardings" value="156" trend="+5%" color={colors.primary} />
+                                    <Card label="Avg. KMs/Day" value="28.5" trend="+3%" color={colors.warning} />
+                                </div>
+                                <SimpleCard title="Lead Status Distribution">
+                                    <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '8px', padding: '20px 0' }}>
+                                        <div style={{ flex: 1, backgroundColor: colors.primary, height: '60%', borderRadius: '4px 4px 0 0' }}></div>
+                                        <div style={{ flex: 1, backgroundColor: '#0084D1', height: '75%', borderRadius: '4px 4px 0 0' }}></div>
+                                        <div style={{ flex: 1, backgroundColor: '#0070D2', height: '55%', borderRadius: '4px 4px 0 0' }}></div>
+                                    </div>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // LEADS LIST
+            if (currentScreen === 'leads') {
+                const leadsData = [
+                    { id: 1, name: 'Priya Sharma', phone: '98765 43210', ceremony: 'Marriage', date: '2026-08-15', status: 'New', area: 'Fort Kochi' },
+                    { id: 2, name: 'Rajesh Kumar', phone: '98765 43211', ceremony: 'Engagement', date: '2026-07-20', status: 'Contacted', area: 'Mattancherry' },
+                    { id: 3, name: 'Anjali Patel', phone: '98765 43212', ceremony: 'Marriage', date: '2026-09-10', status: 'Interested', area: 'Ernakulathappan' },
+                    { id: 4, name: 'Vikram Singh', phone: '98765 43213', ceremony: 'Other', date: '2026-06-30', status: 'Not Interested', area: 'Kochi' },
+                    { id: 5, name: 'Deepa Menon', phone: '98765 43214', ceremony: 'Marriage', date: '2026-10-05', status: 'Converted', area: 'Fort Kochi' },
+                ];
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Leads" />
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                                    <button 
+                                        onClick={() => { setModalType('newLead'); setShowModal(true); }}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: colors.primary, color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}
+                                    >
+                                        <Plus size={18} /> New Lead
+                                    </button>
+                                    <input type="text" placeholder="Filter by status, area..." style={{ flex: 1, padding: '10px 12px', border: `1px solid ${colors.border}`, borderRadius: '4px', fontSize: '13px' }} />
+                                </div>
+                                <SimpleCard title="Active Leads">
+                                    <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Name</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Phone</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Ceremony</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Status</th>
+                                                <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600' }}>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {leadsData.map((lead, idx) => (
+                                                <tr key={lead.id} style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: idx % 2 === 0 ? colors.white : colors.background }}>
+                                                    <td style={{ padding: '12px' }}><strong>{lead.name}</strong></td>
+                                                    <td style={{ padding: '12px' }}>{lead.phone}</td>
+                                                    <td style={{ padding: '12px' }}>{lead.ceremony}</td>
+                                                    <td style={{ padding: '12px' }}>
+                                                        <span style={{ padding: '4px 8px', backgroundColor: getStatusColor(lead.status), color: 'white', borderRadius: '12px', fontSize: '11px', fontWeight: '500' }}>
+                                                            {lead.status}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                        <button onClick={() => { setSelectedLead(lead); setCurrentScreen('leadDetail'); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.primary }}>
+                                                            <Eye size={16} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // LEAD DETAIL
+            if (currentScreen === 'leadDetail') {
+                const lead = selectedLead || { id: 1, name: 'Priya Sharma', phone: '98765 43210', ceremony: 'Marriage', date: '2026-08-15', status: 'Interested', area: 'Fort Kochi', email: 'priya@example.com', address: 'Kochi, Kerala', occupation: 'IT Professional' };
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title={`Lead - ${lead.name}`} />
+                            <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+                                <button onClick={() => setCurrentScreen('leads')} style={{ marginBottom: '16px', background: 'none', border: 'none', color: colors.primary, cursor: 'pointer', fontSize: '14px', textDecoration: 'underline' }}>
+                                    ← Back to Leads
+                                </button>
+                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                                    <SimpleCard title="Lead Information">
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                            <InfoField label="Name" value={lead.name} />
+                                            <InfoField label="Phone" value={lead.phone} />
+                                            <InfoField label="Email" value={lead.email} />
+                                            <InfoField label="Ceremony Type" value={lead.ceremony} />
+                                        </div>
+                                    </SimpleCard>
+                                    <SimpleCard title="Status">
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <p style={{ color: colors.lightText, fontSize: '12px', marginBottom: '8px' }}>Current Status</p>
+                                            <span style={{ padding: '8px 12px', backgroundColor: '#E5A900', color: 'white', borderRadius: '12px', fontSize: '13px', fontWeight: '500' }}>
+                                                {lead.status}
+                                            </span>
+                                        </div>
+                                        <button style={{ width: '100%', padding: '10px', backgroundColor: colors.primary, color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                                            Record Follow-up
+                                        </button>
+                                    </SimpleCard>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // CUSTOMERS
+            if (currentScreen === 'customers') {
+                const customersData = [
+                    { id: 1, name: 'Deepa Menon', phone: '98765 43214', area: 'Fort Kochi', cardNumber: 'C001', visits: 5 },
+                    { id: 2, name: 'Suresh Nair', phone: '98765 43215', area: 'Mattancherry', cardNumber: 'C002', visits: 3 },
+                ];
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Customers" />
+                            <div style={{ padding: '24px' }}>
+                                <SimpleCard title="Customer Master">
+                                    <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Name</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Phone</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Area</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Card Number</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Visits</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {customersData.map((customer, idx) => (
+                                                <tr key={customer.id} style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: idx % 2 === 0 ? colors.white : colors.background }}>
+                                                    <td style={{ padding: '12px' }}><strong>{customer.name}</strong></td>
+                                                    <td style={{ padding: '12px' }}>{customer.phone}</td>
+                                                    <td style={{ padding: '12px' }}>{customer.area}</td>
+                                                    <td style={{ padding: '12px' }}>{customer.cardNumber}</td>
+                                                    <td style={{ padding: '12px' }}>{customer.visits}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // HOARDINGS
+            if (currentScreen === 'hoardings') {
+                const hoardingsData = [
+                    { id: 1, name: 'Hoarding A1', location: 'Fort Kochi', size: '20x10', contractor: 'Contractor A', status: 'Good Condition', nextVisit: '2026-08-15' },
+                    { id: 2, name: 'Hoarding B2', location: 'Mattancherry', size: '15x8', contractor: 'Contractor B', status: 'Need Fix', nextVisit: '2026-08-10' },
+                ];
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Hoardings" />
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: colors.primary, color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>
+                                        <Plus size={18} /> New Hoarding
+                                    </button>
+                                </div>
+                                <SimpleCard title="Active Hoardings">
+                                    <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Name</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Location</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Size</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {hoardingsData.map((h, idx) => (
+                                                <tr key={h.id} style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: idx % 2 === 0 ? colors.white : colors.background }}>
+                                                    <td style={{ padding: '12px' }}><strong>{h.name}</strong></td>
+                                                    <td style={{ padding: '12px' }}>{h.location}</td>
+                                                    <td style={{ padding: '12px' }}>{h.size}</td>
+                                                    <td style={{ padding: '12px' }}>
+                                                        <span style={{ padding: '4px 8px', backgroundColor: h.status === 'Good Condition' ? colors.success : colors.warning, color: 'white', borderRadius: '12px', fontSize: '11px' }}>
+                                                            {h.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // CONTRACTORS
+            if (currentScreen === 'contractors') {
+                const contractorsData = [
+                    { id: 1, name: 'Contractor A', contact: 'John Doe', phone: '98765 11111', activeHoardings: 5, annualValue: '2,50,000' },
+                    { id: 2, name: 'Contractor B', contact: 'Jane Smith', phone: '98765 22222', activeHoardings: 3, annualValue: '1,50,000' },
+                ];
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Contractors" />
+                            <div style={{ padding: '24px' }}>
+                                <SimpleCard title="Contractor Master">
+                                    <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Name</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Contact</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Active Hoardings</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Annual Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {contractorsData.map((contractor, idx) => (
+                                                <tr key={contractor.id} style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: idx % 2 === 0 ? colors.white : colors.background }}>
+                                                    <td style={{ padding: '12px' }}><strong>{contractor.name}</strong></td>
+                                                    <td style={{ padding: '12px' }}>{contractor.contact}</td>
+                                                    <td style={{ padding: '12px' }}>{contractor.activeHoardings}</td>
+                                                    <td style={{ padding: '12px' }}>₹ {contractor.annualValue}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ROUTES
+            if (currentScreen === 'routes') {
+                const routesData = [
+                    { id: 1, name: 'Fort Kochi Route', area: 'Fort Kochi', hoardings: 12, status: 'Active' },
+                    { id: 2, name: 'Mattancherry Route', area: 'Mattancherry', hoardings: 8, status: 'Active' },
+                ];
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Routes" />
+                            <div style={{ padding: '24px' }}>
+                                <SimpleCard title="Hoarding Routes">
+                                    <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Route Name</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Area</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Hoardings</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {routesData.map((route, idx) => (
+                                                <tr key={route.id} style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: idx % 2 === 0 ? colors.white : colors.background }}>
+                                                    <td style={{ padding: '12px' }}><strong>{route.name}</strong></td>
+                                                    <td style={{ padding: '12px' }}>{route.area}</td>
+                                                    <td style={{ padding: '12px' }}>{route.hoardings}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // EVENTS
+            if (currentScreen === 'events') {
+                const eventsData = [
+                    { id: 1, name: 'Monsoon Sale 2026', type: 'Campaign', startDate: '2026-07-15', endDate: '2026-08-15' },
+                    { id: 2, name: 'Eid Celebration', type: 'Shop Event', startDate: '2026-07-20', endDate: '2026-07-22' },
+                ];
+
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Event Calendar" />
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+                                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: colors.primary, color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>
+                                        <Plus size={18} /> New Event
+                                    </button>
+                                </div>
+                                <SimpleCard title="Upcoming Events">
+                                    <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Event Name</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Type</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>Start Date</th>
+                                                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600' }}>End Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {eventsData.map((event, idx) => (
+                                                <tr key={event.id} style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: idx % 2 === 0 ? colors.white : colors.background }}>
+                                                    <td style={{ padding: '12px' }}><strong>{event.name}</strong></td>
+                                                    <td style={{ padding: '12px' }}>{event.type}</td>
+                                                    <td style={{ padding: '12px' }}>{event.startDate}</td>
+                                                    <td style={{ padding: '12px' }}>{event.endDate}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // REPORTS
+            if (currentScreen === 'reports') {
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Reports & Analytics" />
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                                    <ReportCard title="Sales Productivity" description="Visits, Completed Visits, KMs" icon="📊" />
+                                    <ReportCard title="Lead & Customer" description="Conversion Rate, New Customers" icon="👥" />
+                                    <ReportCard title="Hoarding Monitoring" description="Visits, Board Status, Missed" icon="📋" />
+                                    <ReportCard title="Contractor Reports" description="Contract Value, Active Count" icon="🤝" />
+                                    <ReportCard title="Route Performance" description="Visits per Route, Leads" icon="🗺️" />
+                                    <ReportCard title="Executive Performance" description="KM, Visits, Conversion" icon="📈" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // SETTINGS
+            if (currentScreen === 'settings') {
+                return (
+                    <div style={{ display: 'flex', height: '100vh' }}>
+                        <Sidebar />
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: colors.background, overflow: 'auto' }}>
+                            <TopBar title="Settings" />
+                            <div style={{ padding: '24px', maxWidth: '600px' }}>
+                                <SimpleCard title="Account Settings">
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                        <InfoField label="Full Name" value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'User'} />
+                                        <InfoField label="Email" value="user@chungathjewellers.com" />
+                                        <InfoField label="Role" value={userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'N/A'} />
+                                    </div>
+                                </SimpleCard>
+                                <SimpleCard title="System Settings" style={{ marginTop: '16px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" defaultChecked /> Email Notifications Enabled
+                                        </label>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" defaultChecked /> In-App Notifications Enabled
+                                        </label>
+                                    </div>
+                                </SimpleCard>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // HELPER COMPONENTS
+            const SimpleCard = ({ title, children, style }) => (
+                <div style={{ backgroundColor: colors.white, borderRadius: '4px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', ...style }}>
+                    {title && <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: colors.darkText }}>{title}</h2>}
+                    {children}
+                </div>
+            );
+
+            const Card = ({ label, value, trend, color }) => (
+                <SimpleCard>
+                    <p style={{ color: colors.lightText, fontSize: '12px', marginBottom: '8px' }}>{label}</p>
+                    <p style={{ fontSize: '28px', fontWeight: 'bold', color }}>{value}</p>
+                    <p style={{ color: colors.success, fontSize: '12px', marginTop: '8px' }}>{trend}</p>
+                </SimpleCard>
+            );
+
+            const InfoField = ({ label, value }) => (
+                <div>
+                    <p style={{ color: colors.lightText, fontSize: '12px', marginBottom: '4px' }}>{label}</p>
+                    <p style={{ fontSize: '14px', fontWeight: '500', color: colors.darkText }}>{value}</p>
+                </div>
+            );
+
+            const ReportCard = ({ title, description, icon }) => (
+                <SimpleCard style={{ cursor: 'pointer', transition: 'all 0.3s', border: `2px solid ${colors.border}` }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>{icon}</div>
+                    <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: colors.darkText, marginBottom: '8px' }}>{title}</h3>
+                    <p style={{ fontSize: '12px', color: colors.mediumText }}>{description}</p>
+                    <button style={{ marginTop: '12px', padding: '8px 12px', backgroundColor: colors.primary, color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '500' }}>
+                        View Report
+                    </button>
+                </SimpleCard>
+            );
+
+            const getStatusColor = (status) => {
+                const statusColors = {
+                    'New': '#0070D2',
+                    'Contacted': '#4A90E2',
+                    'Interested': '#FFB81C',
+                    'Not Interested': '#E74C3C',
+                    'Converted': '#04844B',
+                    'Lost': '#A4373A',
+                    'Disqualified': '#8B8B8B'
+                };
+                return statusColors[status] || '#0070D2';
+            };
+
+            return <div>Loading...</div>;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ChungathCRMPrototype />);
+    </script>
+</body>
+</html>
